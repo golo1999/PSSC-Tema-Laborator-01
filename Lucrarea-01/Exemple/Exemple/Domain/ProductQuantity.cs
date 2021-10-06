@@ -5,15 +5,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Exemple.Domain
+namespace Lucrarea01.Domain
 {
-    public record StudentRegistrationNumber
+    public record  ProductQuantity
     {
-        private static readonly Regex ValidPattern = new("^LM[0-9]{5}$");
-
+        private static readonly Regex ValidPattern = new("^LO[0-9]{5}$");
+        
         public string Value { get; }
 
-        private StudentRegistrationNumber(string value)
+        private ProductQuantity(string value)
         {
             if (ValidPattern.IsMatch(value))
             {
@@ -21,7 +21,7 @@ namespace Exemple.Domain
             }
             else
             {
-                throw new InvalidStudentRegistrationNumberException("");
+                throw new InvalidProductQuantity("Wrong Input");
             }
         }
 

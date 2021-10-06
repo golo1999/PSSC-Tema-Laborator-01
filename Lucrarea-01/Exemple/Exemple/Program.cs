@@ -1,7 +1,7 @@
 ﻿using Exemple.Domain;
 using System;
 using System.Collections.Generic;
-using static Exemple.Domain.ExamGrades;
+using static Exemple.Domain.Cart;
 
 namespace Exemple
 {
@@ -11,49 +11,119 @@ namespace Exemple
 
         static void Main(string[] args)
         {
-            var listOfGrades = ReadListOfGrades().ToArray();
-            UnvalidatedExamGrades unvalidatedGrades = new(listOfGrades);
-            IExamGrades result = ValidateExamGrades(unvalidatedGrades);
-            result.Match(
-                whenUnvalidatedExamGrades: unvalidatedResult => unvalidatedGrades,
-                whenPublishedExamGrades: publishedResult => publishedResult,
-                whenInvalidatedExamGrades: invalidResult => invalidResult,
-                whenValidatedExamGrades: validatedResult => PublishExamGrades(validatedResult)
-            );
+            var productsList = ReadProductsList().ToArray();
 
-            Console.WriteLine("Hello World!");
+            var cartDetails = ReadDetails();
+
+            UnvalidatedCart unvalidatedCart = new(productsList, cartDetails);
+
+            ICart result = checkCart(unvalidatedCart);
+
+            result.Match(
+                whenUnvalidatedCart: unvalidatedCart => unvalidatedCart,
+                whenEmptyCart: invalidResult => invalidResult,
+                whenInvalidatedCart: invalidResult => invalidResult,
+                whenValidatedCart: validatedCart => paidCart(validatedCart, cartDetails, DateTime.Now),
+                whenPaidCart: paidCart => paidCart
+                );
+
+            Console.WriteLine(result);
         }
 
-        private static List<UnvalidatedStudentGrade> ReadListOfGrades()
+        private static ICart checkCart(UnvalidatedCart unvalidatedCart) => ((unvalidatedCart.ProductsList.Count == 0) ?
+            new EmptyCart(new List<UnvalidatedProduct>(), "Empty cart") :
+                ((string.IsNullOrEmpty(unvalidatedCart.CartDetails.PaymentAddress.Value)) ?
+                    new InvalidatedCart(new List<UnvalidatedProduct>(), "Invalid cart") :
+                        ((unvalidatedCart.CartDetails.PaymentState.Value == 0) ?
+                            new ValidatedCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails) :
+                                new PaidCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails, DateTime.Now))));
+
+        private static ICart paidCart(ValidatedCart validatedResult, CartDetails cartDetails, DateTime PublishedDate) =>
+                new PaidCart(new List<ValidatedProduct>(), cartDetails, DateTime.Now);
+
+        private static List<UnvalidatedProduct> ReadProductsList()
         {
-            List <UnvalidatedStudentGrade> listOfGrades = new();
+            List<UnvalidatedProduct> productsList = new();
+
+            object? answer = null;
+
             do
             {
-                //read registration number and grade and create a list of greads
-                var registrationNumber = ReadValue("Registration Number: ");
-                if (string.IsNullOrEmpty(registrationNumber))
+                answer = ReadValue("Do you want to add a new product? [Y/N]: ");
+
+                if (answer != null && answer.Equals("Y"))
                 {
-                    break;
+                    var ProdusID = ReadValue("\nProduct id: ");
+
+                    if (string.IsNullOrEmpty(ProdusID))
+                    {
+                        break;
+                    }
+
+                    var ProdusCantitate = ReadValue("Product quantity: ");
+
+                    if (string.IsNullOrEmpty(ProdusCantitate))
+                    {
+                        break;
+                    }
+
+                    UnvalidatedProduct productToBeAdded = new(ProdusID, ProdusCantitate);
+
+                    productsList.Add(productToBeAdded);
+                    Console.Write("\n");
                 }
 
-                var grade = ReadValue("Grade: ");
-                if (string.IsNullOrEmpty(grade))
-                {
-                    break;
-                }
+            } while (answer != null && !answer.Equals("N"));
 
-                listOfGrades.Add(new (registrationNumber, grade));
-            } while (true);
-            return listOfGrades;
+            return productsList;
         }
 
-        private static IExamGrades ValidateExamGrades(UnvalidatedExamGrades unvalidatedGrades) =>
-            random.Next(100) > 50 ?
-            new InvalidatedExamGrades(new List<UnvalidatedStudentGrade>(), "Random errror")
-            : new ValidatedExamGrades(new List<ValidatedStudentGrade>());
+        public static CartDetails ReadDetails()
+        {
+            PaymentState paymentState;
 
-        private static IExamGrades PublishExamGrades(ValidatedExamGrades validExamGrades) =>
-            new PublishedExamGrades(new List<ValidatedStudentGrade>(), DateTime.Now);
+            PaymentAddress paymentAddress;
+
+            CartDetails cartDetails;
+
+            string? answer = ReadValue("\nDo you want to proceed to checkout? [Y/N]: ");
+
+            if (answer != null && answer.Contains("Y"))
+            {
+                var address = ReadValue("\nPlease type your address: ");
+
+                if (string.IsNullOrEmpty(address))
+                {
+                    paymentAddress = new PaymentAddress("No address");
+                }
+                else
+                {
+                    paymentAddress = new PaymentAddress(address);
+                }
+
+                var payment = ReadValue("\nDo you want to pay now? [Y/N]: ");
+
+                if (payment != null && payment.Contains("Y"))
+                {
+                    paymentState = new PaymentState(1);
+                }
+                else
+                {
+                    paymentState = new PaymentState(0);
+                }
+            }
+            else
+            {
+                paymentAddress = new PaymentAddress("No address");
+                paymentState = new PaymentState(0);
+            }
+
+            cartDetails = new CartDetails(paymentAddress, paymentState);
+
+            Console.Write("\n");
+
+            return cartDetails;
+        }
 
         private static string? ReadValue(string prompt)
         {
