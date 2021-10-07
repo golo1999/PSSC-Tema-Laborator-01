@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Exemple.Domain
 {
-    public record ValidatedProduct(string ProductID, string ProductQuantity);
+    public record UnvalidatedProducts(string ProductID, string ProductQuantity);
 }

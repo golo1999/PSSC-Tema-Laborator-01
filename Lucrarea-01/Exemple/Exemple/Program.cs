@@ -11,7 +11,7 @@ namespace Exemple
         {
             var productsList = ReadProductsList().ToArray();
 
-            var cartDetails = ReadDetails();
+            var cartDetails = GetCartDetails();
 
             UnvalidatedCart unvalidatedCart = new(productsList, cartDetails);
 
@@ -29,20 +29,20 @@ namespace Exemple
         }
 
         private static ICart CheckCart(UnvalidatedCart unvalidatedCart) =>
-            ((unvalidatedCart.ProductsList.Count == 0) ?
-                new EmptyCart(new List<UnvalidatedProduct>(), "Empty cart") :
-                    ((string.IsNullOrEmpty(unvalidatedCart.CartDetails.PaymentAddress.Value)) ?
-                        new InvalidatedCart(new List<UnvalidatedProduct>(), "Invalid cart") :
-                            ((unvalidatedCart.CartDetails.PaymentState.Value == 0) ?
-                                new ValidatedCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails) :
-                                    new PaidCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails, DateTime.Now))));
+            unvalidatedCart.ProductsList.Count == 0 ?
+                new EmptyCart(new List<UnvalidatedProducts>(), "Empty cart") :
+                    (string.IsNullOrEmpty(unvalidatedCart.CartDetails.PaymentAddress.Value) ?
+                        new InvalidatedCart(new List<UnvalidatedProducts>(), "Invalid cart") :
+                            (unvalidatedCart.CartDetails.PaymentState.Value == 0 ?
+                                new ValidatedCart(new List<ValidatedProducts>(), unvalidatedCart.CartDetails) :
+                                    new PaidCart(new List<ValidatedProducts>(), unvalidatedCart.CartDetails, DateTime.Now)));
 
         private static ICart PaidCart(ValidatedCart validatedResult, CartDetails cartDetails) =>
-                new PaidCart(new List<ValidatedProduct>(), cartDetails, DateTime.Now);
+                new PaidCart(new List<ValidatedProducts>(), cartDetails, DateTime.Now);
 
-        private static List<UnvalidatedProduct> ReadProductsList()
+        private static List<UnvalidatedProducts> ReadProductsList()
         {
-            List<UnvalidatedProduct> productsList = new();
+            List<UnvalidatedProducts> productsList = new();
 
             object? answer;
 
@@ -66,7 +66,7 @@ namespace Exemple
                         break;
                     }
 
-                    UnvalidatedProduct productToBeAdded = new(ProdusID, ProdusCantitate);
+                    UnvalidatedProducts productToBeAdded = new(ProdusID, ProdusCantitate);
 
                     productsList.Add(productToBeAdded);
                     Console.Write("\n");
@@ -77,7 +77,7 @@ namespace Exemple
             return productsList;
         }
 
-        public static CartDetails ReadDetails()
+        public static CartDetails GetCartDetails()
         {
             PaymentState paymentState;
 
