@@ -7,8 +7,6 @@ namespace Exemple
 {
     class Program
     {
-        private static readonly Random random = new Random();
-
         static void Main(string[] args)
         {
             var productsList = ReadProductsList().ToArray();
@@ -17,20 +15,20 @@ namespace Exemple
 
             UnvalidatedCart unvalidatedCart = new(productsList, cartDetails);
 
-            ICart result = checkCart(unvalidatedCart);
+            ICart result = CheckCart(unvalidatedCart);
 
             result.Match(
                 whenUnvalidatedCart: unvalidatedCart => unvalidatedCart,
                 whenEmptyCart: invalidResult => invalidResult,
                 whenInvalidatedCart: invalidResult => invalidResult,
-                whenValidatedCart: validatedCart => paidCart(validatedCart, cartDetails, DateTime.Now),
+                whenValidatedCart: validatedCart => PaidCart(validatedCart, cartDetails),
                 whenPaidCart: paidCart => paidCart
                 );
 
             Console.WriteLine(result);
         }
 
-        private static ICart checkCart(UnvalidatedCart unvalidatedCart) => ((unvalidatedCart.ProductsList.Count == 0) ?
+        private static ICart CheckCart(UnvalidatedCart unvalidatedCart) => ((unvalidatedCart.ProductsList.Count == 0) ?
             new EmptyCart(new List<UnvalidatedProduct>(), "Empty cart") :
                 ((string.IsNullOrEmpty(unvalidatedCart.CartDetails.PaymentAddress.Value)) ?
                     new InvalidatedCart(new List<UnvalidatedProduct>(), "Invalid cart") :
@@ -38,15 +36,14 @@ namespace Exemple
                             new ValidatedCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails) :
                                 new PaidCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails, DateTime.Now))));
 
-        private static ICart paidCart(ValidatedCart validatedResult, CartDetails cartDetails, DateTime PublishedDate) =>
+        private static ICart PaidCart(ValidatedCart validatedResult, CartDetails cartDetails) =>
                 new PaidCart(new List<ValidatedProduct>(), cartDetails, DateTime.Now);
 
         private static List<UnvalidatedProduct> ReadProductsList()
         {
             List<UnvalidatedProduct> productsList = new();
 
-            object? answer = null;
-
+            object? answer;
             do
             {
                 answer = ReadValue("Do you want to add a new product? [Y/N]: ");
