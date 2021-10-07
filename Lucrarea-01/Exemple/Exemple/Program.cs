@@ -28,13 +28,14 @@ namespace Exemple
             Console.WriteLine(result);
         }
 
-        private static ICart CheckCart(UnvalidatedCart unvalidatedCart) => ((unvalidatedCart.ProductsList.Count == 0) ?
-            new EmptyCart(new List<UnvalidatedProduct>(), "Empty cart") :
-                ((string.IsNullOrEmpty(unvalidatedCart.CartDetails.PaymentAddress.Value)) ?
-                    new InvalidatedCart(new List<UnvalidatedProduct>(), "Invalid cart") :
-                        ((unvalidatedCart.CartDetails.PaymentState.Value == 0) ?
-                            new ValidatedCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails) :
-                                new PaidCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails, DateTime.Now))));
+        private static ICart CheckCart(UnvalidatedCart unvalidatedCart) =>
+            ((unvalidatedCart.ProductsList.Count == 0) ?
+                new EmptyCart(new List<UnvalidatedProduct>(), "Empty cart") :
+                    ((string.IsNullOrEmpty(unvalidatedCart.CartDetails.PaymentAddress.Value)) ?
+                        new InvalidatedCart(new List<UnvalidatedProduct>(), "Invalid cart") :
+                            ((unvalidatedCart.CartDetails.PaymentState.Value == 0) ?
+                                new ValidatedCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails) :
+                                    new PaidCart(new List<ValidatedProduct>(), unvalidatedCart.CartDetails, DateTime.Now))));
 
         private static ICart PaidCart(ValidatedCart validatedResult, CartDetails cartDetails) =>
                 new PaidCart(new List<ValidatedProduct>(), cartDetails, DateTime.Now);
@@ -44,6 +45,7 @@ namespace Exemple
             List<UnvalidatedProduct> productsList = new();
 
             object? answer;
+
             do
             {
                 answer = ReadValue("Do you want to add a new product? [Y/N]: ");
