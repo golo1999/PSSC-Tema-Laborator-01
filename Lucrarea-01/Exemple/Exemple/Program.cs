@@ -15,7 +15,7 @@ namespace Exemple
 
             UnvalidatedCart unvalidatedCart = new(productsList, cartDetails);
 
-            ICart result = CheckCart(unvalidatedCart);
+            ICart result = ValidateCart(unvalidatedCart);
 
             result.Match(
                 whenUnvalidatedCart: unvalidatedCart => unvalidatedCart,
@@ -28,7 +28,7 @@ namespace Exemple
             Console.WriteLine(result);
         }
 
-        private static ICart CheckCart(UnvalidatedCart unvalidatedCart) =>
+        private static ICart ValidateCart(UnvalidatedCart unvalidatedCart) =>
             unvalidatedCart.ProductsList.Count == 0 ?
                 // if the cart is empty
                 new EmptyCart(new List<UnvalidatedProducts>(), "Empty cart") :
