@@ -1,9 +1,6 @@
 ﻿using CSharp.Choices;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Exemple.Domain
 {
@@ -14,9 +11,9 @@ namespace Exemple.Domain
 
         public record UnvalidatedCart(IReadOnlyCollection<UnvalidatedProduct> ProductsList, CartDetails CartDetails) : ICart;
 
-        public record InvalidatedCart(IReadOnlyCollection<UnvalidatedProduct> ProductsList, string reason) : ICart;
+        public record InvalidatedCart(IReadOnlyCollection<UnvalidatedProduct> ProductsList, string Reason) : ICart;
 
-        public record EmptyCart(IReadOnlyCollection<UnvalidatedProduct> ProductsList, string reason) : ICart;
+        public record EmptyCart(IReadOnlyCollection<UnvalidatedProduct> ProductsList, string Reason) : ICart;
 
         public record ValidatedCart(IReadOnlyCollection<ValidatedProduct> ProductsList, CartDetails CartDetails) : ICart;
 
