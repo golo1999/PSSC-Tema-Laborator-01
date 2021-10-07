@@ -30,11 +30,17 @@ namespace Exemple
 
         private static ICart CheckCart(UnvalidatedCart unvalidatedCart) =>
             unvalidatedCart.ProductsList.Count == 0 ?
+                // if the cart is empty
                 new EmptyCart(new List<UnvalidatedProducts>(), "Empty cart") :
+                    // if the cart isn't empty
                     (string.IsNullOrEmpty(unvalidatedCart.CartDetails.PaymentAddress.Value) ?
+                        // if there is no address
                         new InvalidatedCart(new List<UnvalidatedProducts>(), "Invalid cart") :
+                            // if there is an address
                             (unvalidatedCart.CartDetails.PaymentState.Value == 0 ?
+                                // if the order hasn't been paid yet
                                 new ValidatedCart(new List<ValidatedProducts>(), unvalidatedCart.CartDetails) :
+                                    // if the order has been paid
                                     new PaidCart(new List<ValidatedProducts>(), unvalidatedCart.CartDetails, DateTime.Now)));
 
         private static ICart PaidCart(ValidatedCart validatedResult, CartDetails cartDetails) =>

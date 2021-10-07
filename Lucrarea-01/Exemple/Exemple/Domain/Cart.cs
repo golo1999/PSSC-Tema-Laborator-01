@@ -17,6 +17,6 @@ namespace Exemple.Domain
 
         public record ValidatedCart(IReadOnlyCollection<ValidatedProducts> ProductsList, CartDetails CartDetails) : ICart;
 
-        public record PaidCart(IReadOnlyCollection<ValidatedProducts> ProductsList, CartDetails CartDetails, DateTime PublishedDate) : ICart;
+        public record PaidCart(IReadOnlyCollection<ValidatedProducts> ProductsList, CartDetails CartDetails, DateTime PaidDate) : ICart;
     }
 }
