@@ -89,25 +89,11 @@ namespace Exemple
             {
                 var address = ReadValue("\nPlease type your address: ");
 
-                if (string.IsNullOrEmpty(address))
-                {
-                    paymentAddress = new PaymentAddress("No address");
-                }
-                else
-                {
-                    paymentAddress = new PaymentAddress(address);
-                }
+                paymentAddress = new PaymentAddress(string.IsNullOrEmpty(address) ? "No address" : address);
 
                 var payment = ReadValue("\nDo you want to pay now? [Y/N]: ");
 
-                if (payment != null && payment.Contains("Y"))
-                {
-                    paymentState = new PaymentState(1);
-                }
-                else
-                {
-                    paymentState = new PaymentState(0);
-                }
+                paymentState = new PaymentState(payment != null && payment.Contains("Y") ? 1 : 0);
             }
             else
             {
